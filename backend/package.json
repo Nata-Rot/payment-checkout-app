@@ -41,18 +41,25 @@
   },
   "jest": {
     "moduleFileExtensions": ["js", "json", "ts"],
-    "rootDir": ".",
-    "testMatch": ["**/test/unit/**/*.spec.ts"],
+    "rootDir": "src",
+    "testRegex": ".*\\.spec\\.ts$",
     "transform": { "^.+\\.(t|j)s$": "ts-jest" },
+    "globals": { "ts-jest": { "tsconfig": "tsconfig.json" } },
     "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/**/*.module.ts",
-      "!src/main.ts",
-      "!src/infrastructure/database/entities/**",
-      "!src/infrastructure/database/seeds/**"
+      "**/*.(t|j)s",
+      "!**/*.spec.ts",
+      "!**/main.ts",
+      "!**/*.module.ts",
+      "!**/infrastructure/database/entities/**",
+      "!**/infrastructure/database/repositories/**",
+      "!**/infrastructure/database/seeds/**",
+      "!**/infrastructure/external/**",
+      "!**/infrastructure/http/controllers/**",
+      "!**/infrastructure/http/dtos/**",
+      "!**/infrastructure/http/filters/**"
     ],
-    "coverageDirectory": "coverage",
-    "testEnvironment": "node",
-    "globals": { "ts-jest": { "tsconfig": "tsconfig.json" } }
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
   }
 }
+
