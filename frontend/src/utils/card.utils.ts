@@ -7,7 +7,7 @@ export function detectCardBrand(number: string): CardBrand {
   return 'unknown';
 }
 export function formatCardNumber(value: string): string {
-  return value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, ' ').trim();
+  return value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
 }
 export function formatExpiry(value: string): string {
   const d = value.replace(/\D/g, '').slice(0, 4);
