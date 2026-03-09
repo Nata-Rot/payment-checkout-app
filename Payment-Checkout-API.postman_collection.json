@@ -1,0 +1,230 @@
+{
+  "info": {
+    "name": "Payment Checkout API",
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url",       "value": "http://localhost:4000/api/v1", "type": "string" },
+    { "key": "productId",      "value": "",                             "type": "string" },
+    { "key": "customerId",     "value": "",                             "type": "string" },
+    { "key": "transactionId",  "value": "",                             "type": "string" },
+    { "key": "cardToken",      "value": "",                             "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get all products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var res = pm.response.json();",
+                  "var list = res.data || res;",
+                  "if (Array.isArray(list) && list.length > 0) {",
+                  "  pm.collectionVariables.set('productId', list[0].id);",
+                  "  console.log('productId saved:', list[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products",
+              "host": ["{{base_url}}"],
+              "path": ["products"]
+            }
+          }
+        },
+        {
+          "name": "Get product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/products/{{productId}}",
+              "host": ["{{base_url}}"],
+              "path": ["products", "{{productId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Create / Upsert customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var res = pm.response.json();",
+                  "var d = res.data || res;",
+                  "if (d && d.id) {",
+                  "  pm.collectionVariables.set('customerId', d.id);",
+                  "  console.log('customerId saved:', d.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/customers",
+              "host": ["{{base_url}}"],
+              "path": ["customers"]
+            },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"fullName\": \"Juan Pérez\",\n  \"phone\": \"+573001234567\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wompi",
+      "item": [
+        {
+          "name": "Tokenize card",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('cardToken', res.data.id);",
+                  "  console.log('cardToken saved:', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer pub_stagtest_g2u0HQd3ZMh05hsSgTS2lUV8t3s4mOt7" }
+            ],
+            "url": {
+              "raw": "https://api-sandbox.co.uat.wompi.dev/v1/tokens/cards",
+              "protocol": "https",
+              "host": ["api-sandbox.co.uat.wompi.dev"],
+              "path": ["v1", "tokens", "cards"]
+            },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"number\": \"4242424242424242\",\n  \"cvc\": \"123\",\n  \"exp_month\": \"12\",\n  \"exp_year\": \"29\",\n  \"card_holder\": \"Jose Perez\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Create transaction",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var res = pm.response.json();",
+                  "var d = res.data || res;",
+                  "if (d && d.id) {",
+                  "  pm.collectionVariables.set('transactionId', d.id);",
+                  "  console.log('transactionId saved:', d.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"customerId\": \"{{customerId}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get transaction by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/transactions/{{transactionId}}",
+              "host": ["{{base_url}}"],
+              "path": ["transactions", "{{transactionId}}"]
+            }
+          }
+        },
+        {
+          "name": "Process payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/transactions/process",
+              "host": ["{{base_url}}"],
+              "path": ["transactions", "process"]
+            },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"transactionId\": \"{{transactionId}}\",\n  \"cardToken\": \"{{cardToken}}\",\n  \"installments\": 1,\n  \"deliveryAddress\": \"Calle 123 # 45-67\",\n  \"deliveryCity\": \"Bogotá\",\n  \"deliveryDepartment\": \"Cundinamarca\",\n  \"deliveryPostalCode\": \"110111\",\n  \"customerEmail\": \"test@example.com\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Deliveries",
+      "item": [
+        {
+          "name": "Get delivery by transaction ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/deliveries/transaction/{{transactionId}}",
+              "host": ["{{base_url}}"],
+              "path": ["deliveries", "transaction", "{{transactionId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
