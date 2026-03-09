@@ -8,7 +8,11 @@ import { AllExceptionsFilter } from './infrastructure/http/filters/http-exceptio
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(helmet());
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  }));
+
   app.enableCors({
     origin: true,
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
@@ -23,7 +27,15 @@ async function bootstrap() {
     .setDescription('RESTful API for product payment checkout')
     .setVersion('1.0')
     .build();
-  SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, doc));
+
+  const document = SwaggerModule.createDocument(app, doc);
+  SwaggerModule.setup('api/docs', app, document, {
+    customCssUrl: 'https://unpkg.com/swagger-ui-dist@5/swagger-ui.css',
+    customJs: [
+      'https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js',
+      'https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js',
+    ],
+  });
 
   const port = process.env.PORT || 4000;
   await app.listen(port);

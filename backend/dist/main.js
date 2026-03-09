@@ -11,7 +11,10 @@ const app_module_1 = require("./app.module");
 const http_exception_filter_1 = require("./infrastructure/http/filters/http-exception.filter");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
-    app.use((0, helmet_1.default)());
+    app.use((0, helmet_1.default)({
+        contentSecurityPolicy: false,
+        crossOriginEmbedderPolicy: false,
+    }));
     app.enableCors({
         origin: true,
         methods: ['GET', 'POST', 'PATCH', 'DELETE'],
@@ -24,7 +27,14 @@ async function bootstrap() {
         .setDescription('RESTful API for product payment checkout')
         .setVersion('1.0')
         .build();
-    swagger_1.SwaggerModule.setup('api/docs', app, swagger_1.SwaggerModule.createDocument(app, doc));
+    const document = swagger_1.SwaggerModule.createDocument(app, doc);
+    swagger_1.SwaggerModule.setup('api/docs', app, document, {
+        customCssUrl: 'https://unpkg.com/swagger-ui-dist@5/swagger-ui.css',
+        customJs: [
+            'https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js',
+            'https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js',
+        ],
+    });
     const port = process.env.PORT || 4000;
     await app.listen(port);
     console.log('API running on http://localhost:' + port);
