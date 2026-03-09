@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { DataSource } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { ProductOrmEntity } from '../entities/product.orm-entity';
@@ -11,22 +12,24 @@ const products = [
 async function seed() {
   const ds = new DataSource({
     type: 'postgres',
-    host: 'localhost',
-    port: 5433,
-    username: 'checkout_user',
-    password: 'checkout_pass',
-    database: 'checkout_db',
+    url: process.env.DATABASE_URL,
     entities: [ProductOrmEntity],
     synchronize: true,
+    ssl: process.env.DATABASE_URL?.includes('rds.amazonaws.com') ? { rejectUnauthorized: false } : false,
   });
   await ds.initialize();
   const repo = ds.getRepository(ProductOrmEntity);
   for (const p of products) {
     const exists = await repo.findOne({ where: { name: p.name } });
-    if (!exists) { await repo.save(repo.create(p)); console.log('Seeded: ' + p.name); }
-    else { console.log('Already exists: ' + p.name); }
+    if (!exists) {
+      await repo.save(repo.create(p));
+      console.log('Seeded:', p.name);
+    } else {
+      console.log('Already exists:', p.name);
+    }
   }
   await ds.destroy();
   console.log('Seed complete');
 }
+
 seed().catch(console.error);

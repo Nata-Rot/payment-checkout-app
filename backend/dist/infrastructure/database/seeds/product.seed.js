@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+require("dotenv/config");
 const typeorm_1 = require("typeorm");
 const uuid_1 = require("uuid");
 const product_orm_entity_1 = require("../entities/product.orm-entity");
@@ -11,13 +12,10 @@ const products = [
 async function seed() {
     const ds = new typeorm_1.DataSource({
         type: 'postgres',
-        host: 'localhost',
-        port: 5433,
-        username: 'checkout_user',
-        password: 'checkout_pass',
-        database: 'checkout_db',
+        url: process.env.DATABASE_URL,
         entities: [product_orm_entity_1.ProductOrmEntity],
         synchronize: true,
+        ssl: process.env.DATABASE_URL?.includes('rds.amazonaws.com') ? { rejectUnauthorized: false } : false,
     });
     await ds.initialize();
     const repo = ds.getRepository(product_orm_entity_1.ProductOrmEntity);
@@ -25,10 +23,10 @@ async function seed() {
         const exists = await repo.findOne({ where: { name: p.name } });
         if (!exists) {
             await repo.save(repo.create(p));
-            console.log('Seeded: ' + p.name);
+            console.log('Seeded:', p.name);
         }
         else {
-            console.log('Already exists: ' + p.name);
+            console.log('Already exists:', p.name);
         }
     }
     await ds.destroy();
